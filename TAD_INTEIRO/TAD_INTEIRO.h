@@ -11,7 +11,7 @@
     typedef struct lista Lista;
 
     Lista* lst_cria(void);
-    void lst_libera(Lista* l);
+    Lista* lst_libera(Lista* l);
 
     Lista* lst_insere(Lista *l, int i);
     Lista* lst_retira(Lista* l, int v);
