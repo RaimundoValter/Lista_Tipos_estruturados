@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "TAD_INTEIRO.C": "cpp"
+        "TAD_INTEIRO.C": "cpp",
+        "TAD_LISTAHET.C": "cpp"
     }
 }
