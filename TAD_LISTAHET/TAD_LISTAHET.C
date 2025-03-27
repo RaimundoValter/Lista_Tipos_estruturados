@@ -100,11 +100,31 @@ Nova cabeça da lista. NULL, caso a lista se esvazie.
 
 Listahet* lsthet_retira(Listahet* l, int id){
 
-    
+    Listahet* ant = NULL;
+    Listahet* p = l;
 
+    while(p != NULL){
+        if (p->id == id)
+            break;
+        
+        ant = p;
+        p = p->prox;
+    }
+
+    // Elemento encontrado
+    if (p != NULL){
+        // Elemento na cabeça da lista.
+        if (ant == NULL)
+            l = p->prox;
+        // Elemento no corpo ou no fim da lista.
+        else
+            ant->prox = p->prox;
+
+        free(p->info);
+        free(p);
+    }
 
     return l;
-
 }
 
 /*LSTHET_VAZIA
