@@ -16,7 +16,17 @@ NULL
 Libera a memória de toda a lista.
 */
 Listahet* lsthet_libera(Listahet* l){
-    
+    Listahet* prox;
+
+    while(l != NULL){
+        prox = l->prox;
+        free(l->info);
+        free(l);
+
+        l = prox;
+    }
+
+    return NULL;
 }
 
 /*LSTHET_INSERE
@@ -80,7 +90,22 @@ void* lsthet_cria_elemento(int tipo){
     }
 }
 
-Listahet* lsthet_retira(Listahet* l, int id);
+/*LSTHET_RETIRA
+Parêmetros: 
+l    = cabeça da minha lista;
+id   = índice do elemento que deseja excluir.
+Retorna:
+Nova cabeça da lista. NULL, caso a lista se esvazie.
+*/
+
+Listahet* lsthet_retira(Listahet* l, int id){
+
+    
+
+
+    return l;
+
+}
 
 /*LSTHET_VAZIA
 Parêmetros: 
@@ -92,7 +117,26 @@ vazia (1) ou não vazia (0).
 int lsthet_vazia(Listahet* l){
     return l == NULL;
 }
-Listahet* lsthet_busca(Listahet *l, int id);
+
+/*LSTHET_BUSCA
+Parêmetros: 
+l    = cabeça da minha lista;
+id   = índice do elemento que deseja excluir.
+Retorna:
+Ponteiro para o lemento buscado. NULL, caso o elemento 
+não esteja na lista.
+*/
+Listahet* lsthet_busca(Listahet* l, int id){
+
+    while(l != NULL){
+        if(l->id == id)
+            return l;
+        
+        l = l->prox;
+    }
+
+    return NULL;
+}
 
 /*LSTHET_IMPRIME
 Parêmetros: 

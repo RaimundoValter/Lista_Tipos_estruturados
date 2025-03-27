@@ -15,6 +15,26 @@ int main() {
         printf("Lista de Tipos Heterogênesos:\n");
         lsthet_imprime(minha_lista);   
     }
+    
+    int id_busca = -1;
+    printf("\n## Buscando um elemento pelo ID ##\n");
+    printf("Digite um id: ");
+    scanf("%d", &id_busca);
 
+    Listahet* elemento_busca = lsthet_busca(minha_lista, id_busca);
+    if( elemento_busca )
+        printf("Elemento com id %d encontrado!\n", id_busca);
+    else
+        printf("Elemento com id %d inexistente...\n", id_busca);
+
+    printf("Liberando minha lista...\n");
+    minha_lista = lsthet_libera(minha_lista);
+
+    if(lsthet_vazia(minha_lista))
+        printf("Minha lista está vazia!\n");
+    else{
+        printf("Lista de Tipos Heterogênesos:\n");
+        lsthet_imprime(minha_lista);   
+    }
     return 0;
 }
