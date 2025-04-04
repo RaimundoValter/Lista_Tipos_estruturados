@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "./TAD_LISTAHET/TAD_LISTAHET.h"
+#include "../TAD_LISTAHET/TAD_LISTAHET.h"
 
 int main() {
     printf("Criando um lista Heterogênea de Retângulos, Círculos e Triânguloes!\n");
