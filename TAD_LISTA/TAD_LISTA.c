@@ -1,6 +1,5 @@
 #include "TAD_LISTA.h"
 
-
 /*
 Cria uma lista genérica.
 Retorno: Ponteiro para a cabeça da lista vazia.
@@ -79,8 +78,6 @@ Lista* lst_retira(Lista* l, void* info, int (*verifica)(void*, void*))
     
 }
 
-
-
 /*
 Parâmetros: 
 l= cabeça da lista,
@@ -99,8 +96,6 @@ Lista* lst_busca(Lista *l, void* info, int (*verifica)(void*, void*)){
     } 
     return NULL;// Não encontrou o elemento.
 }
-
-
 
 /*
 */
