@@ -1,6 +1,8 @@
 {
-    "files.associations": {
-        "TAD_INTEIRO.C": "cpp",
-        "TAD_LISTAHET.C": "cpp"
-    }
+  "files.associations": {
+    "*.C": "c",
+    "TAD_INTEIRO.C": "cpp",
+    "TAD_LISTAHET.C": "cpp",
+    "stdlib.h": "c"
+  }
 }

@@ -21,6 +21,8 @@
     void lst_imprime(Lista *l, void (*imprime)(void*));
     int lst_map(Lista* l, void (*operacao)(void*), int (*filtro)(void*));
 
+    void ok();
+
 
     #include "TAD_LISTA.c"
 #endif
