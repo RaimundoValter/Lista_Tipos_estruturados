@@ -23,6 +23,8 @@
     int verifica(Lista *l, int n);
     
 
+    void ok();
+
 
     #include "TAD_LISTA.c"
 #endif
