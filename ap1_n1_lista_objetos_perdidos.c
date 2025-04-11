@@ -11,11 +11,11 @@ typedef struct {
     } ObjetoPerdido;
 
 ObjetoPerdido* cria_objeto_perdido();
+
 int verifica_posicao(void* elemento_posicao, void* elemento_inserir);
 int todos_elementos(void* elemento_posicao);
-int elementos_impares(void* elemento_posicao);
 int se_igual(void* elemento1, void* elemento2);
-void duplica(void* elemento);
+int se_descricao_igual(void* elemento1, void* elemento2);
 void formatacao(void* elemento);
 
 int main(int argc, char* argv[]){
@@ -27,7 +27,6 @@ int main(int argc, char* argv[]){
     printf("=> Nossa lista genérica!!!\n\
         Faremos uma lista de OBJETOS PERDIDOS.");
 
-    
     // Inserindo inteiros na minha lista.
     ObjetoPerdido* novo_elemento;
     
@@ -52,50 +51,64 @@ int main(int argc, char* argv[]){
     // Imprime a lista de inteiros criada.
     lst_imprime(minha_lista, formatacao);
 
-    // // Excluir um número inteiro.
-    // int* elemento_exclusao = (int*)malloc(sizeof(int));
+    // MARCAR OBJETO COMO DEVOLVIDO
 
-    // printf("\nDigite um número INTEIRO para excluir: ");
-    // scanf("%d%*c", elemento_exclusao);
+    //Buscar objeto pela descrição.
+ 
+    ObjetoPerdido* elemento_busca = (ObjetoPerdido*)malloc(sizeof(ObjetoPerdido));
 
-    // minha_lista = lst_retira(minha_lista, (void*)elemento_exclusao, se_igual);
+    printf("\nDigite descrição para buscar objeto na lista para DEVOLUÇÃO: ");
+    scanf("%99[^\n]%*c", elemento_busca->descricao);
+
+    ObjetoPerdido* elemento_encontrado = (ObjetoPerdido*)lst_busca(minha_lista, (void*)elemento_busca, se_descricao_igual);
     
-    // // Imprime minha lista após exclusão do elemento.
+    // Liberando a memória da elemento buscado.
+    free(elemento_busca);
 
-    // printf("\nMinha lista após exclusão: \n");
-    // lst_imprime(minha_lista, formatacao);
+    if (elemento_encontrado){
+        printf("\nObjeto \"%s\" encontrado!\n", (elemento_encontrado->descricao));
+        
+        char opcao = 'x';
+        while(opcao != 's' && opcao != 'S' && opcao != 'n' && opcao != 'N'){
+            printf("\nDevolver objeto? (S/N)\n");
+            scanf("%c%*c", &opcao);}
+        
+        switch(opcao){
+            case 's':
+            case 'S':
+                elemento_encontrado->devolvido = 1;
+                printf("\nObjeto devolvido!\n");
+            break;
+            case 'n':
+            case 'N':
+                elemento_encontrado->devolvido = 0;
+                printf("\nObjeto aguardando devolução!\n");
+            break;
+        }
+    }
+    else{
+        printf("\nElemento não encontrado!\n");
+    }
 
-    // //Buscar um número inteiro.
-    // int* elemento_busca = (int*)malloc(sizeof(int));
-    // Lista* elemento_encontrado = NULL;
+    // EXCLUIR UM OBJETO
+    ObjetoPerdido* elemento_exclusao = (ObjetoPerdido*)malloc(sizeof(ObjetoPerdido));
 
-    // printf("\nDigite um número para buscar: ");
-    // scanf("%d%*c", elemento_busca);
-
-    // elemento_encontrado = lst_busca(minha_lista, (void*)elemento_busca, se_igual);
-
-    // if (elemento_encontrado)
-    //     printf("\nElemento %d encontrado!\n", *((int*)(elemento_encontrado->info)));
-    // else
-    //     printf("\nElemento não encontrado!\n");
+    printf("\nDigite descrição para buscar objeto na lista para EXCLUSÃO: ");
+    scanf("%99[^\n]%*c", elemento_exclusao->descricao);
     
-    // // Utilizando a função MAP para duplicar os elementos da minha lista
-    // printf("\n\nUtilizando a função MAP para duplicar a lista de inteiros...\n");
-
-    // if(lst_map(minha_lista, duplica, todos_elementos))
-    //     lst_imprime(minha_lista, formatacao);
-
+    minha_lista = lst_retira(minha_lista, (void*)elemento_exclusao, se_descricao_igual);
     
-    // // Liberando a lista completa.
-    // printf("\n\nLiberando minha Lista de INTEIROS...\n");
-    
-    // minha_lista = lst_libera(minha_lista);
+    // Libera variável após exclusão do elemento.
+    free(elemento_exclusao);
 
-    // if(lst_vazia(minha_lista))
-    //     printf("\nLista liberada com sucesso...\n");
-    // else
-    //     printf("\nLista não liberou memória corretamente...\n");
-    
+    // Imprime minha lista após exclusão do elemento.
+
+    printf("\nMinha lista de OBJETOS PERDIDOS após exclusão: \n");
+    lst_imprime(minha_lista, formatacao);
+
+    // Libera a lista completamente.
+    lst_libera(minha_lista);
+
     return 0;
 }
 
@@ -155,15 +168,6 @@ int todos_elementos(void* elemento){
 }
 
 // Retorna a verificação lógica para identificar
-// os elementos ímpares para impressão.
-int elementos_impares(void* elemento){
-    if (*((int*)elemento) % 2 != 0)
-        return 1;
-    else
-        return 0;
-}
-
-// Retorna a verificação lógica para identificar
 // se os elementos 1 e 2 são iguais.
 int se_igual(void* elemento1, void* elemento2){
     ObjetoPerdido* objeto1 = (ObjetoPerdido*)elemento1;
@@ -175,8 +179,12 @@ int se_igual(void* elemento1, void* elemento2){
         return 0;
 }
 
-// Duplica um elemento inteiro repassado como
-// ponteior para void.
-void duplica(void* elemento){
-    *(int*)elemento = 2 * (*(int*)elemento);
+int se_descricao_igual(void* elemento1, void* elemento2){
+    ObjetoPerdido* objeto1 = (ObjetoPerdido*)elemento1;
+    ObjetoPerdido* objeto2 = (ObjetoPerdido*)elemento2;
+
+    if(strcmp(objeto1->descricao, objeto2->descricao) == 0)
+        return 1;
+    else    
+        return 0;
 }

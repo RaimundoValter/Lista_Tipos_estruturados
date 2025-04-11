@@ -157,13 +157,13 @@ l= cabeça da lista,
 info= elemento que vai ser buscado,
 verifica = ponteiro para a função que vau fazer a comparação se são iguais ou não;
 */
-Lista* lst_busca(Lista *l, void* info, int (*verifica)(void*, void*)){
+void* lst_busca(Lista *l, void* info, int (*verifica)(void*, void*)){
     Lista* p = l;
     while (p != NULL)
     {
         if (verifica(p->info,info))// Vai comparar a informação inserida com as informações que existem na lista.
         {
-            return p;// Retorna o elemento encontrado.
+            return p->info;// Retorna o elemento encontrado.
         }
         p = p->prox;
     } 
