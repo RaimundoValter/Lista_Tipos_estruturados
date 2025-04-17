@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "./TAD_LISTA/TAD_LISTA.h"
+#include "../TAD_LISTA/TAD_LISTA.h"
 
 typedef struct {
     char descricao[100]; // Exemplo: “mochila preta da nike”

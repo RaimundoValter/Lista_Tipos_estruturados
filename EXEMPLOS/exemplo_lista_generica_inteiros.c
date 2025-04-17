@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "./TAD_LISTA/TAD_LISTA.h"
+#include "../TAD_LISTA/TAD_LISTA.h"
 
 int verifica_posicao(void* elemento_posicao, void* elemento_inserir);
 int todos_elementos(void* elemento_posicao);
