@@ -211,3 +211,37 @@ void lst_imprime(Lista *l, void (*imprime)(void*)){
         imprime(aux->info);
     }
 }
+/*
+LST_CARREGA
+Parâmetros:
+Lista* l - recebe um ponteiro para a estrutura "Lista" que contém os
+    campos: void* info e struct lista* prox;
+FILE* arquivo - recebe um ponteiro para um arquivo que está na memória
+    secundária.
+void (*ler_linha)(char*) - função para tratar a linha recuperada do arquivo
+     passada como um vetor de char finalizada com '\0' (string) com vistas a
+     criar a estrutura em memória e retorná-la para ser inserida na lista.
+     Essa função deve retornar NULL caso a operação não seja possível.
+*/
+Lista* lst_carrega(Lista* l, FILE* arquivo, void* (*ler_linha)(char*)){
+
+    // Vetor para acondicionar os dados lidos da linha do arquivo
+    // no limite de 120 caracteres.
+    char linha_recuperada[121];
+    
+    // Equanto existir linhas a serem recuperadas.
+    if(fgets(linha_recuperada, 121, arquivo) != NULL){
+        // Aloca a nova posição da lista
+        Lista* novo = (Lista*)malloc(sizeof(Lista));
+        // Guarda a informação formatada na lista.
+        novo->info = ler_linha(linha_recuperada);
+        // Determina o novo elemento como cabeça da lista.
+        novo->prox = l;
+        // Atualiza a cabeça da lista.
+        l = novo;
+    }
+
+    return l;
+}
+
+Lista* lst_grava(Lista* l, FILE* arquivo, int (*escrever_linha)(void*));

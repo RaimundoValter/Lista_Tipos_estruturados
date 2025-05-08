@@ -3,6 +3,7 @@
     
 
     #include <stdlib.h>
+    #include <stdio.h>
 
     struct lista{
         void* info;
@@ -21,10 +22,11 @@
     void lst_imprime(Lista *l, void (*imprime)(void*));
     int lst_map(Lista* l, void (*operacao)(void*), int (*filtro)(void*));
     int verifica(Lista *l, int n);
+
+    Lista* lst_carrega(Lista* l, FILE* arquivo, void* (*ler)(char*));
+    Lista* lst_grava(Lista* l, FILE* arquivo, void (*escrever)(void*));
     
-
     void ok();
-
 
     #include "TAD_LISTA.c"
 #endif
