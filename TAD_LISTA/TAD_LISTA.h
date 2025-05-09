@@ -23,8 +23,8 @@
     int lst_map(Lista* l, void (*operacao)(void*), int (*filtro)(void*));
     int verifica(Lista *l, int n);
 
-    Lista* lst_carrega(Lista* l, FILE* arquivo, void* (*ler)(char*));
-    Lista* lst_grava(Lista* l, FILE* arquivo, void (*escrever)(void*));
+    Lista* lst_carrega(Lista* l, char* nome_arquivo, void* (*ler_linha)(char*));
+    int lst_grava(Lista* l, char* nome_arquivo, char* (*escrever_linha)(void*));
     
     void ok();
 

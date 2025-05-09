@@ -223,25 +223,99 @@ void (*ler_linha)(char*) - função para tratar a linha recuperada do arquivo
      criar a estrutura em memória e retorná-la para ser inserida na lista.
      Essa função deve retornar NULL caso a operação não seja possível.
 */
-Lista* lst_carrega(Lista* l, FILE* arquivo, void* (*ler_linha)(char*)){
+Lista* lst_carrega(Lista* l, char* nome_arquivo, void* (*ler_linha)(char*)){
+
+    FILE* arquivo = fopen(nome_arquivo, "rt");
+
+    if(!arquivo){
+        printf("Erro ao carregar arquivo: %s", nome_arquivo);
+        return 1;
+    }
 
     // Vetor para acondicionar os dados lidos da linha do arquivo
     // no limite de 120 caracteres.
     char linha_recuperada[121];
+    char c = ' ';
     
-    // Equanto existir linhas a serem recuperadas.
-    if(fgets(linha_recuperada, 121, arquivo) != NULL){
-        // Aloca a nova posição da lista
-        Lista* novo = (Lista*)malloc(sizeof(Lista));
-        // Guarda a informação formatada na lista.
-        novo->info = ler_linha(linha_recuperada);
-        // Determina o novo elemento como cabeça da lista.
-        novo->prox = l;
-        // Atualiza a cabeça da lista.
-        l = novo;
+    // Recupera uma linha do arquivo
+    int i = 0; // Índice do caracter na linha recuperada.
+    do{
+        c = fgetc(arquivo);
+
+        // Caso o caracter recuperado do arquivo seja símbolo de nova linha
+        // ou fim de arquivo.
+        if (c == '\n' || c == EOF){
+            // Fecha a linha recuperada até aqui.
+            linha_recuperada[i] = '\0';
+            
+            // Caso a linha recuperada não esteja vazia.
+            if(i != 0){
+                // Aloca a nova posição da lista
+                Lista* novo = (Lista*)malloc(sizeof(Lista));
+                // Guarda a informação formatada na lista.
+                novo->info = ler_linha(linha_recuperada);
+                // Determina o novo elemento como cabeça da lista.
+                novo->prox = l;
+                // Atualiza a cabeça da lista.
+                l = novo;
+                
+                // Reinicia o índice de contagem de caracteres de linha.
+                i = 0;
+            }
+        }
+        else{
+            linha_recuperada[i] = c;
+            i++;
+        }
     }
+    while(c != EOF);
+
+    fclose(arquivo);
 
     return l;
 }
 
-Lista* lst_grava(Lista* l, FILE* arquivo, int (*escrever_linha)(void*));
+/*
+LST_GRAVA
+Parâmetros:
+Lista* l - recebe um ponteiro para a estrutura "Lista" que contém os
+    campos: void* info e struct lista* prox;
+FILE* arquivo - recebe um ponteiro para um arquivo que está na memória
+    secundária.
+char* (*escrever_linha)(void*) - função para tratar a escrita da linha no
+        arquivo. Deve receber o ponteiro para a estrutura a ser gravada na
+        memória e formatar uma linha com os valores separados por ';',
+        finalizada com '\n'.
+*/
+int lst_grava(Lista* l, char* nome_arquivo, char* (*escrever_linha)(void*)){
+
+    FILE* arquivo = fopen(nome_arquivo, "wt");
+
+    if(!arquivo){
+        printf("Erro ao gravar dados no arquivo: %s", nome_arquivo);
+        return 1;
+    }
+
+    for(Lista* p = l; p != NULL; p = p->prox){
+        // Monta a linha a ser escrita no arquivo e retorna o ponteiro para ela.
+        char* linha = escrever_linha(p->info);
+
+        // Caso a linha não tenha sido criada por algum problema.
+        if(!linha){
+            // Fecha o arquivo.
+            fclose(arquivo);
+            return 0;
+        }
+        // Grava a linha montada no arquivo.
+        fprintf(arquivo,linha);
+
+        //Libera a linha que já não é mais necessária.
+        free(linha);
+    }
+
+    // Fecha o arquivo.
+    fclose(arquivo);
+    // Retorna o sinal de que deu tudo certo.
+    return 1;
+
+}
