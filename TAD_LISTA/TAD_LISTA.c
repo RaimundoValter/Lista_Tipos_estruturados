@@ -229,7 +229,7 @@ Lista* lst_carrega(Lista* l, char* nome_arquivo, void* (*ler_linha)(char*)){
 
     if(!arquivo){
         printf("Erro ao carregar arquivo: %s", nome_arquivo);
-        return 1;
+        exit(1);
     }
 
     // Vetor para acondicionar os dados lidos da linha do arquivo
