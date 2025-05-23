@@ -21,7 +21,7 @@ int main(){
     else
         printf("\nO caracter \"%c\" NÃO é um dígito e seu correspondente maiúsculo é %c.\n", c, maiuscula(c));
 
-    
+        
     return 0;
 }
 
