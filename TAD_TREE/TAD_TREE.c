@@ -1,4 +1,5 @@
 #include "TAD_TREE.h"
+#include <stdlib.h>
 
 /* IS IT EMPTY?
     Return
@@ -38,8 +39,17 @@ int tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)){
 }
 /* FREE A TREE
     free memory of all elements in a tree/subtree starting from the "root" node.
+Params
+    root: a node of a tree/subtree that you would like to free.
 */
-void tree_free(Node* root);
+void tree_free(Node* root){
+    if(root != NULL){
+        tree_free(root->lst);
+        tree_free(root->rst);
+        free(root->info);
+        free(root);
+    }
+}
 
 /* PERFORM OPERATION IN A TREE
     perform an operation in all elements of a tree.
@@ -55,7 +65,9 @@ void tree_map(Node* root, void (operation)(void*));
 Node* tree_filter(Node* root, int (condition)(void*));
 
 /* SEARH AN ELEMENT IN THE TREE
- Search the first element that satisfy condition inside the tree.
+    Search the first element that satisfy condition inside the tree.
+ Params
+    ...
  Return
     A pointer (Node*) to the first node that satisfied the conditino.
 */
