@@ -23,20 +23,16 @@ Node* tree_create_empty(){
     Return
         pointer to a new node (Node*).
 */
-Node* tree_create_node(void* info, Node* lst, Node* rst){
-    Node *new_node = (Node*)malloc(sizeof(Node));
-
-    new_node->info = info;
-    new_node->lst = lst;
-    new_node->rst = rst;
-
-    return new_node;
-}
+Node* tree_create_node(void* info, Node* lst, Node* rst);
 
 /* INSERT A NODE
     Inserts a node in a tree based on a comparison.
     If it's true, the new_node will be placed in the left sub-tree, 
     if it's false, the new_node will be in the right sub-tree.
+    Params
+        root: pointer to the root of the tree
+        new_node: pointer to the new node
+        compare: callback function that compares two elements
     Return
         True if the new_node was placed in the tree,
         otherwise false.
@@ -62,13 +58,67 @@ void tree_free(Node* root);
 */
 void tree_map(Node* root, void (operation)(void*));
 
+/* INSERT ALL ELEMENTS IN A TREE
+  insert all elements in a tree/subtree starting from the "root" node.
+  Params
+    source: pointer to the root of the subtree to be copied
+    dest: pointer to the root of the destination tree
+    copy_node: callback function that returns a copy of the element
+    compare: callback function that compares two elements
+*/
+void insert_all(Node* source, Node** dest, Node* (copy_node)(void*), int (compare)(void*, void*)) {
+    // Condição de parada, caso a arvore seja vazia ou chegue ao fim
+    if (tree_empty(source)) return; 
+
+    // Copia o nó
+    Node* copied_node = copy_node(source->info); 
+
+    // Insere o nó copiado na arvore na arvore de destino
+    *dest = tree_insert_balanced(*dest, copied_node, compare);
+
+    // Chamada recursiva para o filho esquerdo
+    insert_all(source->lst, dest, copy_node, compare);
+
+    // Chamada recursiva para o filho direito
+    insert_all(source->rst, dest, copy_node, compare);
+}
+
 /* FILTER ELEMENTS IN THE TREE
- Gather togeter a set of elements that satisfy condition inside the tree.
+ Gather together a set of elements that satisfy condition inside the tree.
+ Params
+    root: pointer to the root of the tree
+    condition: callback function that returns true if the element satisfies the condition
+    copy_node: callback function that returns a copy of the element
+    compare: callback function that compares two elements
  Return
-    Pointer to the head of a list composed by the elements
+    Pointer to the root of a tree composed by the elements
     that satisfy the condition.
 */
-Node* tree_filter(Node* root, int (condition)(void*));
+Node* tree_filter(Node* root, int (condition)(void*), Node* (copy_node)(void*), int (compare)(void*, void*)) {
+    // Se a arvore for vazia, retorna uma arvore vazia
+    if (tree_empty(root)) return tree_create_empty();
+
+    // Cria uma nova arvore para armazenar os elementos filtrados
+    Node* filtered_tree = tree_create_empty();
+
+    // Verifica se o elemento atual satisfaz a condicao, se sim
+    // copia ele e insere na nova arvore
+    if (condition(root->info)) {
+        Node* copied_node = copy_node(root->info);
+        filtered_tree = tree_insert_balanced(filtered_tree, copied_node, compare);
+    }
+
+    // Filtra recursivamente os nós da subárvore esquerda e direita
+    Node* left_filtered = tree_filter(root->lst, condition, copy_node, compare);
+    Node* right_filtered = tree_filter(root->rst, condition, copy_node, compare);
+
+    // Insere todos os nós filtrados da esquerda e da direita na nova árvore
+    insert_all(left_filtered, &filtered_tree, copy_node, compare);
+    insert_all(right_filtered, &filtered_tree, copy_node, compare);
+
+    return filtered_tree;
+}
+
 
 /* SEARH AN ELEMENT IN THE TREE
  Search the first element that satisfy condition inside the tree.
@@ -77,26 +127,10 @@ Node* tree_filter(Node* root, int (condition)(void*));
 */
 Node* tree_search(Node* root, int (condition)(void*));
 
-/* PRINT THE ELEMENTS OF THE TREE
- Shows the elements of the tree as if it were lying down, elements of the right
- going up and the elements of the left going down   
- */
-void tree_print(Node* root, void (print)(void*), int depth) {
-    if (tree_empty(root)) return;
-
-    tree_print(root->rst, print, depth + 1);
-
-    // Indentação proporcional à profundidade
-    for (int i = 0; i < depth; i++) {
-        printf("    ");
-    }
-    print(root->info);
-
-    tree_print(root->lst, print, depth + 1);
-}
-
 /* VERIFIES THE HEIGHT OF THE NODE
  Receives a node that calculates his height on the tree
+ Params
+    node: pointer to the root of the tree
  Return
     An integer for the height 
 */
@@ -112,6 +146,8 @@ int tree_get_height(Node* node) {
 /* ROTATES THE TREE TO THE RIGHT
  Executes a rotation to the right, to fix the imbalance
  when the left subtree is heavier
+ Params
+    root: pointer to the root of the tree
  Return
     A pointer (Node*) to the new root
 */
@@ -128,6 +164,8 @@ Node* rotate_right(Node* root) {
 /* ROTATES THE TREE TO THE LEFT
  Executes a rotation to the left, to fix the imbalance
  when the right subtree is heavier
+ Params
+    root: pointer to the root of the tree
  Return
     A pointer (Node*) to the new root
 */
@@ -144,6 +182,10 @@ Node* rotate_left(Node* root) {
 /* INSERTS A NEW NODE WHILE BALANCING THE TREE 
  Inserts a new node like a BST, but balancing the tree
  after each insertion to keep it balanced
+ Params
+    root: pointer to the root of the tree
+    new_node: pointer to the new node
+    compare: callback function that compares two elements
  Return
     A pointer (Node*) to the new root
 */
