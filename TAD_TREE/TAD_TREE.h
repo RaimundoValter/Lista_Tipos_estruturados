@@ -14,7 +14,7 @@
     void tree_map(Node* root, void (operation)(void*)); // Linhares
     Node* tree_search(Node* root, int (condition)(void*)); // Damasceno
     int tree_update(Node* root, void (update)(void*)); // Silva
-    Node* tree_load_from_file(char* file_name, void* (read_line)(char*)); // Santana
+    Node* tree_load_from_file(char* file_name, void* (read_line)(char*), int (compare)(void*, void*)); // Santana
     void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)); // Damasceno
  
     Node* tree_filter(Node* root, int (condition)(void*));
