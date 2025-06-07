@@ -24,5 +24,7 @@
     Node* tree_insert_balanced(Node* root, Node* new_node, int (compare)(void*, void*)); //Ribeiro
     Node* tree_delete_balanced(Node* root, Node* new_node, int (compare)(void*, void*)); //Medonça
 
+    #include <stdio.h>
+    #include <stdlib.h>
     #include "TAD_TREE.c"
 #endif
