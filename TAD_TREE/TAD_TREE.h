@@ -14,7 +14,7 @@
     void tree_map(Node* root, void (operation)(void*)); // Linhares
     Node* tree_search(Node* root, int (condition)(void*)); // Damasceno
     int tree_update(Node* root, void (update)(void*)); // Silva
-    Node* tree_load_from_file(char* file_name, void* (read_line)(char*)); // Santana
+    Node* tree_load_from_file(char* file_name, void* (read_line)(char*), int (compare)(void*, void*)); // Santana
     void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)); // Damasceno
  
     void insert_all(Node* source, Node** dest, Node* (copy_node)(void*), int (compare)(void*, void*));
@@ -28,5 +28,7 @@
     Node* tree_insert_balanced(Node* root, Node* new_node, int (compare)(void*, void*)); //Ribeiro
     Node* tree_delete_balanced(Node* root, Node* new_node, int (compare)(void*, void*)); //Medonça
 
+    #include <stdio.h>
+    #include <stdlib.h>
     #include "TAD_TREE.c"
 #endif
