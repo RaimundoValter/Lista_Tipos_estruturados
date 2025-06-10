@@ -50,10 +50,16 @@ int tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)){
 */
 void tree_free(Node* root);
 
-/* PERFORM OPERATION IN A TREE
-    perform an operation in all elements of a tree.
-*/
-void tree_map(Node* root, void (operation)(void*));
+/* PERFORM OPERATION IN A TREE 
+perform an operation in all elements of a tree. 
+Node* root = receives the head of the tree 
+void (operation)(void*) = callback operation that will be applied to the intere tree */ 
+void tree_map(Node* root, void (operation)(void*)){
+    if (empty_tree(root)) return; //checks if the tree is empty, if it is, returns null
+  tree_map(root->lst,operation);//do the operation only on the left side of the root 
+  operation(root->info);//apply to the current node 
+  tree_map(root->rst,operation);//do all the same but on the right side }
+}
 
 /* FILTER ELEMENTS IN THE TREE
  Gather togeter a set of elements that satisfy condition inside the tree.
