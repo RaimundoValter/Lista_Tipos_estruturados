@@ -6,6 +6,11 @@
         struct node* rst;
     }Node;
 
+    typedef struct nodelist{
+        void* info;
+        struct nodelist* next;
+    }Nodelist;
+
     int tree_empty(Node* root);
     Node* tree_create_empty();
     void tree_free(Node* root);
