@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 /* IS IT EMPTY?
     Return
         True if the tree is empty, otherwise false.
@@ -59,10 +60,20 @@ Node* tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)) 
 
     return root;
 }
+
 /* FREE A TREE
     free memory of all elements in a tree/subtree starting from the "root" node.
+Params
+    root: a node of a tree/subtree that you would like to free.
 */
-void tree_free(Node* root);
+void tree_free(Node* root){
+    if(root != NULL){
+        tree_free(root->lst);
+        tree_free(root->rst);
+        free(root->info);
+        free(root);
+    }
+}
 
 /* PERFORM OPERATION IN A TREE 
 perform an operation in all elements of a tree. 
