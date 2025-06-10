@@ -17,12 +17,21 @@ Node* tree_create_empty(){
 }
 
 /* CREATE A NODE
-    Creates a node with an info ans left and right sub-tree.
+    Creates a node with an info and left and right sub-tree.
     Return
         pointer to a new node (Node*).
 */
 Node* tree_create_node(void* info, Node* lst, Node* rst){
+    // Allocates memory for the new node
+    Node* new_node = (Node*) malloc (sizeof(Node));
 
+    // Sets the node fields (info, lst and rst)
+    new_node->info = info;
+    new_node->lst = lst;
+    new_node->rst = rst;
+ 
+    // Returns the created node
+    return new_node;
 }
 
 /* INSERT A NODE
@@ -41,10 +50,16 @@ int tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)){
 */
 void tree_free(Node* root);
 
-/* PERFORM OPERATION IN A TREE
-    perform an operation in all elements of a tree.
-*/
-void tree_map(Node* root, void (operation)(void*));
+/* PERFORM OPERATION IN A TREE 
+perform an operation in all elements of a tree. 
+Node* root = receives the head of the tree 
+void (operation)(void*) = callback operation that will be applied to the intere tree */ 
+void tree_map(Node* root, void (operation)(void*)){
+    if (empty_tree(root)) return; //checks if the tree is empty, if it is, returns null
+  tree_map(root->lst,operation);//do the operation only on the left side of the root 
+  operation(root->info);//apply to the current node 
+  tree_map(root->rst,operation);//do all the same but on the right side }
+}
 
 /* FILTER ELEMENTS IN THE TREE
  Gather togeter a set of elements that satisfy condition inside the tree.
@@ -90,6 +105,7 @@ Node* tree_search(Node* root, int (condition)(void*)){
     result = tree_search(root->rst,condition);
     return result;
 }
+
 /* TREE TO FILE
    Save all elements from the tree to a text file using in-order traversal.
 
@@ -134,4 +150,48 @@ void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)){
     // Close the file
     fclose(fp);
     
+}
+
+/* LOAD A BINARY TREE FROM A TEXT FILE 
+    Reads a text file line by line, converts each line into data (using read_line),
+    creates a node for each data item, and inserts it into the tree in order using the compare function.
+
+    Parameters
+        file_name: name of the file to read
+        read_line: function that converts a line (char*) into generic data (void*)
+        compare: function used to order nodes upon insertion
+    Return
+        A pointer to the root of the constructed tree (Node*)
+*/
+Node* tree_load_from_file(char* file_name, void* (read_line)(char*), int (compare)(void*, void*)){
+    // Open the file in text mode for reading
+    FILE* fp = fopen(file_name, "rt");
+
+    // Check if the file was opened successfully
+    if(!fp){
+        printf("Error: file %s could not be opened.\n", file_name);
+        exit(1);
+    }
+
+    // Buffer to temporarily store each line read from the file
+    char recovered_line[121];
+
+    // Create an empty tree
+    Node* root = tree_create_empty();
+
+    // Read the file line by line
+    while(fgets(recovered_line, 121, fp) != NULL){
+        // Remove the newline character if present
+        recovered_line[strcspn(recovered_line, "\n")] = '\0';
+
+        // Create a new node with the processed data and insert it into the tree
+        Node* new_node = tree_create_node(read_line(recovered_line), NULL, NULL);
+        root = tree_insert_node(root, new_node, compare);
+    }
+
+    // Close the file
+    fclose(fp);
+
+    // Return the root of the constructed tree
+    return root;
 }
