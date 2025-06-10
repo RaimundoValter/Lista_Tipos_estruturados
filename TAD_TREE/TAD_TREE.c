@@ -271,6 +271,34 @@ Node* tree_search(Node* root, int (condition)(void*)){
     return result;
 }
 
+/*
+  WRITE IN ORDER
+  Recursively writes the contents of a binary tree to a file using in-order traversal.
+ 
+  Return: 
+  (void) – does not return any value.
+ 
+  Parameters:
+  Node* new_node – current node to process.
+  FILE* fp – file pointer to the opened text file where data will be written.
+  char* (create_line)(void*) – function that receives the node's info and
+  returns a dynamically allocated string to be written into the file.
+*/
+void write_inorder(Node *new_node, FILE *fp, char* (*create_line)(void*))
+{
+    if (new_node == NULL)
+    return;
+
+    write_inorder(new_node->lst,fp,create_line); //Visit left subtree
+    char * line = create_line(new_node->info); // Generate a formatted string from the node's info
+    if (line != NULL)
+    {
+        fprintf(fp,"%s",line); // Write the line to the file
+        free(line); // Free the memory allocated by create_line
+    }
+    write_inorder(new_node->rst,fp,create_line); //Visit right subtree
+}
+
 /* TREE TO FILE
    Save all elements from the tree to a text file using in-order traversal.
 
@@ -284,24 +312,6 @@ Node* tree_search(Node* root, int (condition)(void*)){
     returns a formatted string to be saved in the file.
     This function must return a dynamically allocated string,
     which will be freed after being written.
-*/
-// Recursive function to write the tree to the file in-order
-void write_inorder(Node *new_node, FILE *fp, char* (*create_line)(void*))
-{
-    if (new_node == NULL)
-    return;
-
-    write_inorder(new_node->lst,fp,create_line); //Visit left subtree
-    char * line = create_line(new_node->info); 
-    if (line != NULL)
-    {
-        fprintf(fp,"%s",line); // Write the line to the file
-        free(line); // Free the memory allocated by create_line
-    }
-    write_inorder(new_node->rst,fp,create_line); //Visit right subtree
-}
-
-/* ???
 */
 void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)){
     FILE * fp = fopen(file_name,"wt"); //create an anchive
