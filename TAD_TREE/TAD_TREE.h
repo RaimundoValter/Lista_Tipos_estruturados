@@ -1,5 +1,8 @@
 #ifndef __TAD_TREE_H__
     #define __TAD_TREE_H__
+
+    #include "../TAD_LISTA/TAD_LISTA.h"
+
     typedef struct node{
         void* info;
         struct node* lst;
@@ -11,10 +14,11 @@
         struct nodelist* next;
     }Nodelist;
 
-    int tree_empty(Node* root);
-    Node* tree_create_empty();
-    void tree_free(Node* root);
- 
+    int tree_empty(Node* root); // Raimundo
+    Node* tree_create_empty(); // Raimundo
+    void tree_free(Node* root); // Raimundo
+    Lista* tree_filter_as_list(Node* root, int (condition)(void*), void* (copy_info)(void*), int (compare)(void*, void*)); // Raimundo
+
     Node* tree_create_node(void* info, Node* lst, Node* rst); // Santana
     void tree_map(Node* root, void (operation)(void*)); // Linhares
     Node* tree_search(Node* root, int (condition)(void*)); // Damasceno
@@ -22,10 +26,10 @@
     Node* tree_load_from_file(char* file_name, void* (read_line)(char*), int (compare)(void*, void*)); // Santana
     void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)); // Damasceno
  
-    void insert_all(Node* source, Node** dest, Node* (copy_node)(void*), int (compare)(void*, void*));
-    Node* tree_filter(Node* root, int (condition)(void*), Node* (copy_node)(void*), int (compare)(void*, void*));
-    Node* tree_delete_node(Node* root, int (condition)(void*));
-    Node* tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*));
+    void insert_all(Node* source, Node** dest, void* (copy_info)(void*), int (compare)(void*, void*)); //?
+    Node* tree_filter(Node* root, int (condition)(void*), void* (copy_info)(void*), int (compare)(void*, void*)); //?
+    Node* tree_delete_node(Node* root, int (condition)(void*)); //?
+    Node* tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)); //?
     
     int tree_get_height(Node* root); // Ribeiro
     Node* rotate_right(Node* root); // Ribeiro

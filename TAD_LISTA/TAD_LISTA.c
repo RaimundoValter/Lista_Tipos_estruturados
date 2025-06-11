@@ -34,6 +34,52 @@ Lista* lst_libera(Lista* l){
 
     return p;
 }
+/*
+LST_MERGE
+    Merges difrent lists in a single list.
+Params
+    l1: first list
+    l2: second list
+    compare: a callback that return 1 if the info in the left comes first than the info in the right, otherwise 0;
+Returns
+    A pointer to a single list.
+*/
+Lista* lst_merge(Lista* l1, Lista* l2, int (compare)(void*, void*)){
+
+    Lista* merged_list = l1;
+    Lista* p;
+    Lista* ant = (Lista*)NULL;
+
+    // Goes to the end of first list.
+    if(l1)
+        for(p = l1; p->prox != NULL; p = p->prox);
+
+    // Insert the second list in the end of the first list.
+    if(merged_list)
+        p->prox = l2;
+
+    //Sort the concatenated list, if exists elements
+    if(merged_list){
+        char has_changed = 1;
+        while(has_changed){
+            has_changed = 0;
+            for(p = merged_list; p->prox != NULL; ){
+                ant = p;
+                p = p->prox;
+
+                if(compare(ant->info, p->info)){
+                    void* aux = ant->info;
+                    ant->info = p->info;
+                    p->info = aux;
+                    has_changed = 1;
+                }
+            }
+        }
+    }
+
+    return merged_list;
+
+}
 
 /*
 LST_INSERE
