@@ -5,16 +5,15 @@
 #include "../../TAD_LISTA/TAD_LISTA.h"
 #include "../../TAD_TREE/TAD_TREE.h"
 
+// Chamados de TI
 void formatacao(void* elemento);
 void* ler_linha(char* linha_arquivo);
 char* montar_linha(void* elemento);
 void* criar_chamado();
 int insere_em_qualquer_lugar();
 int todos_registros(void* elemento);
-
 void* copia_chamado(void* info);
 int verifica_chamado_aberto(void* elemento);
-
 int verifica_id_chamado_igual(void* elemento1, void* elemento2);
 int verifica_id_chamado_maior(void* elemento1, void* elemento2);
 
@@ -28,47 +27,55 @@ typedef struct atendimento{
     int resolvido;             // 0 = pendente, 1 = resolvido 
 } AtendimentoTI;
 
+typedef struct avaliacao {
+    int id_chamado; // índice do chamado: chave estrangeira para a tabela atendimento.
+    int satisfacao;         // 1 a 5
+    char comentario[200]; // Comentário acerca do atendimento.
+} AvaliacaoTI;
+
 
 int main(void){
 
-    Node* minha_arvore = tree_create_empty();
+    Node* Atendimentos = tree_create_empty();
 
     // Carrega dados da memória secundária na memória principal
-    minha_arvore = tree_load_from_file("../banco_de_dados_chamados.csv", ler_linha, verifica_id_chamado_maior);
+    Atendimentos = tree_load_from_file("../banco_de_dados_chamados.csv", ler_linha, verifica_id_chamado_maior);
 
     printf("=> Nossa ÁRVORE está CARREGADA DA MEMÓRIA!!!\nEsta é uma árvore de CHAMADOS DE TI.\n");
 
     // Imprime a árvore criada.
-    tree_map(minha_arvore, formatacao);
+    tree_map(Atendimentos, formatacao);
 
     printf("\nImprimindo chamados não resolvidos:\n");
 
-    Lista* chamados_abertos = tree_filter_as_list(minha_arvore, verifica_chamado_aberto, copia_chamado, verifica_id_chamado_maior);
+    Lista* chamados_abertos = tree_filter_as_list(Atendimentos, verifica_chamado_aberto, copia_chamado, verifica_id_chamado_maior);
     
     // Imprime a árvore chamados não atendidos.
     lst_map(chamados_abertos, formatacao, todos_registros);
+
+    lst_libera(chamados_abertos);
 
     printf("\nInserindo 3 elementos novos na nossa árvore:\n");
     
     for(int i=0; i<3; i++){
         AtendimentoTI* chamado_novo = criar_chamado(51 + i);
         if(chamado_novo){
-            minha_arvore = tree_insert_node(minha_arvore,\
+            Atendimentos = tree_insert_node(Atendimentos,\
                  tree_create_node(chamado_novo, tree_create_empty(), tree_create_empty()),\
                   verifica_id_chamado_maior);
         }
     }
 
     // Imprime a árvore com os novos registros.
-    tree_map(minha_arvore, formatacao);
+    tree_map(Atendimentos, formatacao);
 
     // Grava os dados da memória principal para a secundária.
-    tree_to_file(minha_arvore, "../banco_de_dados_chamados.csv", montar_linha);
+    tree_to_file(Atendimentos, "../banco_de_dados_chamados.csv", montar_linha);
 
     // Liberando a árvore completa.
     printf("\n\nLiberando minha ÁRVORE de CHAMADOS DE TI...\n");
     
-    tree_free(minha_arvore);
+    tree_free(Atendimentos);
     
     return 0;
 }
@@ -219,7 +226,7 @@ int verifica_id_chamado_maior(void* elemento1, void* elemento2){
     AtendimentoTI* chamado1 = (AtendimentoTI*)elemento1;
     AtendimentoTI* chamado2 = (AtendimentoTI*)elemento2;
 
-    return chamado1->id_chamado > chamado2->id_chamado;
+    return chamado1->id_chamado < chamado2->id_chamado;
 }
 
 void* criar_chamado(int id_atual){

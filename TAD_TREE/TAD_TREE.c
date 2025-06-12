@@ -373,7 +373,8 @@ Node* tree_search(Node* root, int (condition)(void*)){
 }
 
 /*WRITE IN ORDER
-    Recursively writes the contents of a binary tree to a file using in-order traversal.
+    Recursively writes the contents of a binary tree to a file using
+     symmetric order.
  
 Return
   (void) – does not return any value.
