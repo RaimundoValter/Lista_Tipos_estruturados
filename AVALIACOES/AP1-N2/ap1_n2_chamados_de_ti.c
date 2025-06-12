@@ -34,7 +34,7 @@ int main(void){
     Node* minha_arvore = tree_create_empty();
 
     // Carrega dados da memória secundária na memória principal
-    minha_arvore = tree_load_from_file("../banco_de_dados_chamados.txt", ler_linha, verifica_id_chamado_maior);
+    minha_arvore = tree_load_from_file("../banco_de_dados_chamados.csv", ler_linha, verifica_id_chamado_maior);
 
     printf("=> Nossa ÁRVORE está CARREGADA DA MEMÓRIA!!!\nEsta é uma árvore de CHAMADOS DE TI.\n");
 
@@ -63,7 +63,7 @@ int main(void){
     tree_map(minha_arvore, formatacao);
 
     // Grava os dados da memória principal para a secundária.
-    tree_to_file(minha_arvore, "../banco_de_dados_chamados.txt", montar_linha);
+    tree_to_file(minha_arvore, "../banco_de_dados_chamados.csv", montar_linha);
 
     // Liberando a árvore completa.
     printf("\n\nLiberando minha ÁRVORE de CHAMADOS DE TI...\n");
