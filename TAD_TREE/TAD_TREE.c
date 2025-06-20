@@ -324,9 +324,8 @@ Node* tree_insert_balanced(Node* root, Node* new_node, int (compare)(void*, void
         root->rst = rotate_right(root->rst);
         return rotate_left(root);
     }
-    
-    // TODO: here expets to return something.
-    return (Node*)NULL;
+
+    return root;
 }
 
 /*TREE SEARCH

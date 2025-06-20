@@ -26,8 +26,8 @@
     Node* tree_load_from_file(char* file_name, void* (read_line)(char*), int (compare)(void*, void*)); // Santana
     void tree_to_file(Node* root, char* file_name, char* (create_line)(void*)); // Damasceno
  
-    void insert_all(Node* source, Node** dest, void* (copy_info)(void*), int (compare)(void*, void*)); //?
-    Node* tree_filter(Node* root, int (condition)(void*), void* (copy_info)(void*), int (compare)(void*, void*)); //?
+    void insert_all(Node* source, Node** dest, void* (copy_info)(void*), int (compare)(void*, void*)); // Ribeiro
+    Node* tree_filter(Node* root, int (condition)(void*), void* (copy_info)(void*), int (compare)(void*, void*)); //Ribeiro
     Node* tree_delete_node(Node* root, int (condition)(void*)); //?
     Node* tree_insert_node(Node* root, Node* new_node, int (compare)(void*, void*)); //?
     
