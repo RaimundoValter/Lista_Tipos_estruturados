@@ -6,8 +6,8 @@
     typedef struct hash{
         char* file_name;
         void** HASH_TABLE;
-        unsigned int** CSV_LINE_TABLE;
-        unsigned char** DIRTY_LINE_TABLE; 
+        unsigned int* CSV_LINE_TABLE;
+        unsigned char* DIRTY_LINE_TABLE; 
     } Hash;
 
     /*CREATES A HASH TABLE
