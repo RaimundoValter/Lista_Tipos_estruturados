@@ -5,276 +5,272 @@
 #include "../../TAD_LISTA/TAD_LISTA.h"
 #include "../../TAD_TREE/TAD_TREE.h"
 
-// Chamados de TI
-void formatacao(void* elemento);
-void* ler_linha(char* linha_arquivo);
-char* montar_linha(void* elemento);
-void* criar_chamado();
-int insere_em_qualquer_lugar();
-int todos_registros(void* elemento);
-void* copia_chamado(void* info);
-int verifica_chamado_aberto(void* elemento);
-int verifica_id_chamado_igual(void* elemento1, void* elemento2);
-int verifica_id_chamado_maior(void* elemento1, void* elemento2);
-
-typedef struct atendimento{
-    int  id_chamado;     // índice do chamado: chave primária.
-    int  id_usuario;     // índice que designa o usuário que abriu o chamado: chave estrangeira.
-    char solicitante[100];     // Nome do usuário que abriu o chamado
-    char setor[50];            // Local do atendimento: "Biblioteca", "LabInfo1"
-    char data[11];             // Formato "DD/MM/AAAA"
-    char problema[100];        // Ex: "Impressora não imprime", "Sem internet"
-    int resolvido;             // 0 = pendente, 1 = resolvido 
+typedef struct atendimento
+{
+    int id_chamado;
+    int id_usuario;
+    char solicitante[100];
+    char setor[50];
+    char data[11];
+    char problema[100];
+    int resolvido;
 } AtendimentoTI;
 
-typedef struct avaliacao {
-    int id_chamado; // índice do chamado: chave estrangeira para a tabela atendimento.
-    int satisfacao;         // 1 a 5
-    char comentario[200]; // Comentário acerca do atendimento.
+// Estrutura para a avaliação de satisfação de um atendimento.
+typedef struct avaliacao
+{
+    int id_chamado;
+    int satisfacao;
+    char comentario[200];
 } AvaliacaoTI;
 
+// Estrutura para armazenar o resultado da união dos dados de atendimento e avaliação.
+typedef struct uniao
+{
+    int id_usuario;
+    char solicitante[100];
+    char comentario[200];
+    char setor[50]; // Campo necessário para o relatório
+    int satisfacao; // Campo necessário para o relatório
+} Uniao;
 
-int main(void){
+// Estrutura auxiliar para a construção do relatório de satisfação por setor.
+typedef struct relatorio_setor
+{
+    char nome_setor[50];
+    float soma_satisfacao;
+    int contador_avaliacoes;
+} RelatorioSetor;
 
-    Node* Atendimentos = tree_create_empty();
+// Variável global para auxiliar na busca dentro da árvore por ID.
+int id_chamado_para_buscar;
 
-    // Carrega dados da memória secundária na memória principal
-    Atendimentos = tree_load_from_file("../banco_de_dados_chamados.csv", ler_linha, verifica_id_chamado_maior);
+void *ler_linha_atendimento(char *linha_arquivo);
+void *criar_chamado(int id_atual);
+char *montar_linha_atendimento(void *elemento);
+void formatacao_atendimento(void *elemento);
 
-    printf("=> Nossa ÁRVORE está CARREGADA DA MEMÓRIA!!!\nEsta é uma árvore de CHAMADOS DE TI.\n");
+// Funções de União de Dados
+Lista *unir_dados(Node *arvore_chamados);
+void *ler_linha_avaliacao(char *linha_arquivo);
+int condicao_busca_id(void *info_no);
 
-    // Imprime a árvore criada.
-    tree_map(Atendimentos, formatacao);
+// Funções de Análise e Relatório
+void executar_analise_de_dados(Node *arvore_chamados);
+void gerar_relatorio_satisfacao_por_setor(Lista *lista_uniao);
 
-    printf("\nImprimindo chamados não resolvidos:\n");
+void *copia_chamado(void *info);
+int verifica_chamado_aberto(void *elemento);
+int verifica_id_chamado_maior(void *elemento1, void *elemento2);
+int verifica_setor_igual(void *r, void *nome_setor);
+int insere_em_qualquer_lugar();
+int todos_registros(void *elemento);
 
-    Lista* chamados_abertos = tree_filter_as_list(Atendimentos, verifica_chamado_aberto, copia_chamado, verifica_id_chamado_maior);
-    
-    // Imprime a árvore chamados não atendidos.
-    lst_map(chamados_abertos, formatacao, todos_registros);
+int main(void)
+{
+    Node *Atendimentos = tree_create_empty();
 
+    // 1. Carrega os dados dos chamados do arquivo para a árvore
+    Atendimentos = tree_load_from_file("banco_de_dados_chamados.csv", ler_linha_atendimento, verifica_id_chamado_maior);
+    printf("=> Árvore de chamados carregada da memória.\n");
+    tree_map(Atendimentos, formatacao_atendimento);
+
+    // 2. Filtra e exibe os chamados que ainda não foram resolvidos
+    printf("\n=> Imprimindo chamados não resolvidos:\n");
+    Lista *chamados_abertos = tree_filter_as_list(Atendimentos, verifica_chamado_aberto, copia_chamado, verifica_id_chamado_maior);
+    lst_map(chamados_abertos, formatacao_atendimento, todos_registros);
     lst_libera(chamados_abertos);
 
-    printf("\nInserindo 3 elementos novos na nossa árvore:\n");
-    
-    for(int i=0; i<3; i++){
-        AtendimentoTI* chamado_novo = criar_chamado(51 + i);
-        if(chamado_novo){
-            Atendimentos = tree_insert_node(Atendimentos,\
-                 tree_create_node(chamado_novo, tree_create_empty(), tree_create_empty()),\
-                  verifica_id_chamado_maior);
-        }
+    // 3. Insere um novo chamado (para fins de demonstração)
+    printf("\n=> Inserindo 1 elemento novo na árvore:\n");
+    AtendimentoTI *chamado_novo = criar_chamado(51); // Exemplo com ID fixo
+    if (chamado_novo)
+    {
+        Atendimentos = tree_insert_node(Atendimentos,
+                                        tree_create_node(chamado_novo, tree_create_empty(), tree_create_empty()),
+                                        verifica_id_chamado_maior);
     }
+    printf("\n=> Árvore após inserção:\n");
+    tree_map(Atendimentos, formatacao_atendimento);
 
-    // Imprime a árvore com os novos registros.
-    tree_map(Atendimentos, formatacao);
+    // 4. Salva o estado atual da árvore de volta no arquivo
+    tree_to_file(Atendimentos, "banco_de_dados_chamados.csv", montar_linha_atendimento);
+    printf("\nÁrvore de chamados foi salva em 'banco_de_dados_chamados.csv'.\n");
 
-    // Grava os dados da memória principal para a secundária.
-    tree_to_file(Atendimentos, "../banco_de_dados_chamados.csv", montar_linha);
+    // 5. Executa a rotina de análise e geração de relatórios
+    executar_analise_de_dados(Atendimentos);
 
-    // Liberando a árvore completa.
-    printf("\n\nLiberando minha ÁRVORE de CHAMADOS DE TI...\n");
-    
+    // 6. Libera a memória alocada para a árvore
+    printf("\nLiberando a árvore de chamados...\n");
     tree_free(Atendimentos);
-    
+    printf("Programa finalizado com sucesso.\n");
+
     return 0;
 }
 
-// Funções ÚTEIS
-// Define o formato e imprime informação do tipo AtendimentoTI.
-void formatacao(void* elemento){
-    AtendimentoTI* atendimento = (AtendimentoTI*)elemento;
-    printf("| %d | %d | %s | %d\n", atendimento->id_chamado, atendimento->id_usuario, atendimento->solicitante, atendimento->resolvido);
+void executar_analise_de_dados(Node *arvore_chamados)
+{
+    printf("INICIANDO PROCESSO DE ANÁLISE E RELATÓRIOS...\n");
+
+    // Une os dados dos arquivos de chamados e satisfação
+    Lista *lista_unida_completa = unir_dados(arvore_chamados);
+
+    if (lst_vazia(lista_unida_completa))
+    {
+        printf("Nenhum dado correspondente encontrado para gerar relatórios.\n");
+    }
+    else
+    {
+        printf("Dados de chamados e avaliações unidos com sucesso.\n");
+        // Gera o relatório de satisfação agrupado por setor
+        gerar_relatorio_satisfacao_por_setor(lista_unida_completa);
+        // Libera a memória da lista unida que foi criada para a análise
+        lst_libera(lista_unida_completa);
+    }
 }
 
-/// @brief Função que discrimina que todos os elementos serão selecionados.
-/// @param elemento 
-/// @return True 
-int todos_registros(void* elemento){
-    return 1;
+void gerar_relatorio_satisfacao_por_setor(Lista *lista_uniao)
+{
+    printf("\n--- RELATÓRIO DE SATISFAÇÃO POR SETOR ---\n");
+
+    Lista *relatorio = lst_cria();
+
+    for (Lista *p = lista_uniao; p != NULL; p = p->prox)
+    {
+        Uniao *dado_atual = (Uniao *)p->info;
+        RelatorioSetor *setor_existente = (RelatorioSetor *)lst_busca(relatorio, dado_atual->setor, verifica_setor_igual);
+
+        if (setor_existente != NULL)
+        {
+            setor_existente->soma_satisfacao += dado_atual->satisfacao;
+            setor_existente->contador_avaliacoes++;
+        }
+        else
+        {
+            RelatorioSetor *novo_setor = (RelatorioSetor *)malloc(sizeof(RelatorioSetor));
+            strcpy(novo_setor->nome_setor, dado_atual->setor);
+            novo_setor->soma_satisfacao = dado_atual->satisfacao;
+            novo_setor->contador_avaliacoes = 1;
+            relatorio = lst_insere(relatorio, novo_setor, insere_em_qualquer_lugar);
+        }
+    }
+
+    // Imprime os resultados finais do relatório
+    for (Lista *p = relatorio; p != NULL; p = p->prox)
+    {
+        RelatorioSetor *r_final = (RelatorioSetor *)p->info;
+        float media = r_final->soma_satisfacao / r_final->contador_avaliacoes;
+        printf("Setor: %-20s | Média de Satisfação: %.2f | Avaliações: %d\n",
+               r_final->nome_setor, media, r_final->contador_avaliacoes);
+    }
+
+    lst_libera(relatorio);
 }
 
-// Processa a linha do arquivo e
-// retorna um ponteiro para a estrutura com os dados inseridos nela.
-void* ler_linha(char* linha_arquivo){
-    // Aloca a memória para receber os dados presentes em linha_arquivo
-    AtendimentoTI* novo = (AtendimentoTI*)malloc(sizeof(AtendimentoTI));
+// Funções de União de Dados
 
-    if(!novo){
-        printf("\nFicamos sem memória criando um nó da árvore enquanto carregada a linha do arquivo...\n");
-        exit(1);
+Lista *unir_dados(Node *arvore_chamados)
+{
+    Lista *lista_avaliacoes = lst_carrega(lst_cria(), "banco_de_dados_satisfacao.csv", ler_linha_avaliacao);
+
+    if (lst_vazia(lista_avaliacoes))
+    {
+        printf("AVISO: Arquivo 'banco_de_dados_satisfacao.csv' não pôde ser carregado ou está vazio.\n");
+        return NULL;
     }
 
-    char aux[50];
-    aux[0] ='\0';
+    Lista *lista_uniao = lst_cria();
 
-    // Copia os caracteres de linha_arquivo enquanto não
-    // encontra o caracter de separação ';'
-    int i=0;
-    int j=0;
-    while(linha_arquivo[i] != ';'){
-        aux[j] = linha_arquivo[i];
-        i++;
-        j++;
+    for (Lista *p_aval = lista_avaliacoes; p_aval != NULL; p_aval = p_aval->prox)
+    {
+        AvaliacaoTI *avaliacao_atual = (AvaliacaoTI *)p_aval->info;
+        id_chamado_para_buscar = avaliacao_atual->id_chamado;
+        Node *no_encontrado = tree_search(arvore_chamados, condicao_busca_id);
+
+        if (no_encontrado != NULL)
+        {
+            AtendimentoTI *atendimento = (AtendimentoTI *)no_encontrado->info;
+            Uniao *novo_unido = (Uniao *)malloc(sizeof(Uniao));
+
+            novo_unido->id_usuario = atendimento->id_usuario;
+            strcpy(novo_unido->solicitante, atendimento->solicitante);
+            strcpy(novo_unido->comentario, avaliacao_atual->comentario);
+            strcpy(novo_unido->setor, atendimento->setor);
+            novo_unido->satisfacao = avaliacao_atual->satisfacao;
+
+            lista_uniao = lst_insere(lista_uniao, novo_unido, insere_em_qualquer_lugar);
+        }
     }
-    aux[j] = '\0';
-    novo->id_chamado = atoi(aux);
 
-    i++;
-    j=0;
-    while(linha_arquivo[i] != ';'){
-        aux[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    aux[j] = '\0';
-    novo->id_usuario = atoi(aux);
-
-    // Vai para o próximo caracter em linha_arquivo.
-    i++;
-
-    j=0;
-    while(linha_arquivo[i] != ';'){
-        novo->solicitante[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    novo->solicitante[j]='\0';
-
-    // Vai para o próximo caracter em linha_arquivo.
-    i++;
-
-    j=0;
-    while(linha_arquivo[i] != ';'){
-        novo->setor[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    novo->setor[j]='\0';
-
-    // Vai para o próximo caracter em linha_arquivo.
-    i++;
-
-    j=0;
-    while(linha_arquivo[i] != ';'){
-        novo->data[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    novo->data[j]='\0';
-
-    // Vai para o próximo caracter em linha_arquivo.
-    i++;
-
-    j=0;
-    while(linha_arquivo[i] != ';'){
-        novo->problema[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    novo->problema[j]='\0';
-
-    i++;
-
-    j=0;
-    while(linha_arquivo[i] != '\n' && linha_arquivo[i] != '\0'){
-        aux[j] = linha_arquivo[i];
-        i++;
-        j++;
-    }
-    aux[j]='\0';
-    novo->resolvido = atoi(aux);
-
-    // Retorna a estrutura como void* para ser guardada na lista.
-    return (void*)novo;
+    lst_libera(lista_avaliacoes);
+    return lista_uniao;
 }
 
-// Realiza a cópia de um chamado
-void* copia_chamado(void* info){
-    AtendimentoTI* info_original = (AtendimentoTI*)info;
-    AtendimentoTI* info_copia = (AtendimentoTI*)malloc(sizeof(AtendimentoTI));
+// Funções de Chamados de TI e Auxiliares
 
-    if(!info_copia){
-        printf("\nFicamos sem memória copiando um chamado...\n");
-        exit(1);
-    }
-
-    strcpy(info_copia->data, info_original->data);
-    info_copia->id_chamado = info_original->id_chamado;
-    info_copia->id_usuario = info_original->id_usuario;
-    strcpy(info_copia->problema, info_original->problema);
-    info_copia->resolvido = info_original->resolvido;
-    strcpy(info_copia->setor, info_original->setor);
-    strcpy(info_copia->solicitante, info_original->solicitante);
-
-    return info_copia;
+void formatacao_atendimento(void *elemento)
+{
+    AtendimentoTI *atendimento = (AtendimentoTI *)elemento;
+    printf("| %-4d | %-4d | %-25s | Resolvido: %d\n", atendimento->id_chamado, atendimento->id_usuario, atendimento->solicitante, atendimento->resolvido);
 }
 
-int verifica_chamado_aberto(void* elemento){
-    AtendimentoTI* chamado = (AtendimentoTI*)elemento;
-    return chamado->resolvido == 0;
-}
-
-int verifica_id_chamado_igual(void* elemento1, void* elemento2){
-    AtendimentoTI* chamado1 = (AtendimentoTI*)elemento1;
-    AtendimentoTI* chamado2 = (AtendimentoTI*)elemento2;
-
-    return chamado1->id_chamado == chamado2->id_chamado;
-}
-
-int verifica_id_chamado_maior(void* elemento1, void* elemento2){
-    AtendimentoTI* chamado1 = (AtendimentoTI*)elemento1;
-    AtendimentoTI* chamado2 = (AtendimentoTI*)elemento2;
-
-    return chamado1->id_chamado < chamado2->id_chamado;
-}
-
-void* criar_chamado(int id_atual){
-    AtendimentoTI* novo = (AtendimentoTI*)malloc(sizeof(AtendimentoTI));
-
-    if(!novo){
-        printf("\nFicamos sem memória criando um chamado...\n");
-        exit(1);
-    }
-
-    novo->id_chamado = id_atual + 1;
-
-    printf("id solicitante: ");
-    scanf("%d%*c", &novo->id_usuario);
-
-    printf("Solicitante: ");
-    scanf("%99[^\n]%*c", novo->solicitante);
-    
-    printf("Setor: ");
-    scanf("%49[^\n]%*c", novo->setor);
-
-    printf("Data: ");
-    scanf("%10[^\n]%*c", novo->data);
-
-    printf("Problema: ");
-    scanf("%99[^\n]%*c", novo->problema);
-
-    novo->resolvido = 0;
-    
+void *ler_linha_atendimento(char *linha_arquivo)
+{
+    AtendimentoTI *novo = (AtendimentoTI *)malloc(sizeof(AtendimentoTI));
+    sscanf(linha_arquivo, "%d;%d;%99[^;];%49[^;];%10[^;];%99[^;];%d",
+           &novo->id_chamado, &novo->id_usuario, novo->solicitante,
+           novo->setor, novo->data, novo->problema, &novo->resolvido);
     return novo;
 }
 
-int insere_em_qualquer_lugar(){
-    return 1;
+void *ler_linha_avaliacao(char *linha_arquivo)
+{
+    AvaliacaoTI *novo = (AvaliacaoTI *)malloc(sizeof(AvaliacaoTI));
+    sscanf(linha_arquivo, "%d;%d;%199[^\n]", &novo->id_chamado, &novo->satisfacao, novo->comentario);
+    return novo;
 }
 
-char* montar_linha(void* elemento){
-    
-    AtendimentoTI* atendimento = (AtendimentoTI*)elemento;
-    // Aloca 300 caracteres para montar a linha
-    char* linha = (char*)malloc((300)*sizeof(char));
-    
-    if(!linha){
-        printf("\nFicamos sem memória preparando a linha do chamado %d ser gravada no arquivo...\n", atendimento->id_chamado);
-        exit(1);
-    }
-    
-    sprintf(linha,"%d;%d;%s;%s;%s;%s;%d\n", atendimento->id_chamado, atendimento->id_usuario, atendimento->solicitante, atendimento->setor, atendimento->data, atendimento->problema, atendimento->resolvido);
- 
+char *montar_linha_atendimento(void *elemento)
+{
+    AtendimentoTI *atendimento = (AtendimentoTI *)elemento;
+    char *linha = (char *)malloc(300 * sizeof(char));
+    sprintf(linha, "%d;%d;%s;%s;%s;%s;%d\n",
+            atendimento->id_chamado, atendimento->id_usuario, atendimento->solicitante,
+            atendimento->setor, atendimento->data, atendimento->problema, atendimento->resolvido);
     return linha;
 }
+
+void *criar_chamado(int id_atual)
+{
+    AtendimentoTI *novo = (AtendimentoTI *)malloc(sizeof(AtendimentoTI));
+    novo->id_chamado = id_atual + 1;
+    printf("Digite o ID do solicitante: ");
+    scanf("%d%*c", &novo->id_usuario);
+    printf("Digite o nome do solicitante: ");
+    scanf("%99[^\n]%*c", novo->solicitante);
+    printf("Digite o setor: ");
+    scanf("%49[^\n]%*c", novo->setor);
+    strcpy(novo->data, "13/06/2025"); // Data atual como exemplo
+    printf("Digite a descrição do problema: ");
+    scanf("%99[^\n]%*c", novo->problema);
+    novo->resolvido = 0;
+    return novo;
+}
+
+void *copia_chamado(void *info)
+{
+    AtendimentoTI *info_original = (AtendimentoTI *)info;
+    AtendimentoTI *info_copia = (AtendimentoTI *)malloc(sizeof(AtendimentoTI));
+    if (info_copia)
+    {
+        memcpy(info_copia, info_original, sizeof(AtendimentoTI));
+    }
+    return info_copia;
+}
+
+int verifica_chamado_aberto(void *elemento) { return ((AtendimentoTI *)elemento)->resolvido == 0; }
+int verifica_id_chamado_maior(void *elemento1, void *elemento2) { return ((AtendimentoTI *)elemento1)->id_chamado < ((AtendimentoTI *)elemento2)->id_chamado; }
+int condicao_busca_id(void *info_no) { return ((AtendimentoTI *)info_no)->id_chamado == id_chamado_para_buscar; }
+int verifica_setor_igual(void *r, void *nome_setor) { return strcmp(((RelatorioSetor *)r)->nome_setor, (char *)nome_setor) == 0; }
+int insere_em_qualquer_lugar() { return 1; }
+int todos_registros(void *elemento) { return 1; }

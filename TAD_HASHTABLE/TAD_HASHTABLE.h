@@ -1,94 +1,127 @@
 #ifndef __TAD_HASHTABLE_H__
-    #define __TAD_HASHTABLE_H__
+#define __TAD_HASHTABLE_H__
 
-    #define HASH_TABLE_LENGTH 100
-    
-    typedef struct hash{
-        char* file_name;
-        void** HASH_TABLE;
-        unsigned int** CSV_LINE_TABLE;
-        unsigned char** DIRTY_LINE_TABLE; 
-    } Hash;
+#define HASH_TABLE_LENGTH 3500
 
-    /*CREATES A HASH TABLE
-        Initializes a hash table to manage 
-        the lines of a CSV file.
+#define TABLE_SIZE 3533
 
-    Params
-        - file_name: Pointer to a string representing the file
-         name.
-        - table_length: Length of the hash table. If 0, the default
-         HASH_TABLE_LENGTH is used.
-    Return
-        Pointer to a struct hash.
-    */
-    Hash* hsh_create(char* file_name, int table_length);
+// Estruturas de Dados
+typedef struct Data
+{
+    char *series_reference;
+    char *period;
+    char *type;
+    char *data_value;
+    char *lower_ci;
+    char *upper_ci;
+    char *units;
+    char *indicator;
+    char *cause;
+    char *validation;
+    char *population;
+    char *age;
+    char *severity;
+} Data;
 
-    /*FREES A HASH TABLE
-        Deallocates memory used by the hash table.
-        Before freeing, stores any dirty (modified)
-        lines into the CSV file.
-    Params
-        - hash_table: Pointer to the hash table.
-        - to_csv_line: Callback function that generates 
-        a CSV-formatted string from a hash table entry.
-    Return
-    
-    */
-    void hsh_free(Hash* hash_table, char* (to_csv_line)(void*));
+typedef struct Node
+{
+    int key;
+    Data *data;
+    struct Node *next;
+} Node;
 
-    /*CALCULATES THE HASH OF A CSV LINE
-        Determines the index in the hash table where
-        the given CSV line (representing a record to 
-        be recovered) should be stored.
-    Params
-        - csv_line: Pointer to the CSV line representing the record.
-    Return
-        The hash table index corresponding to the line.
-    */
-    static int hsh_function(unsigned int csv_line);
+typedef struct hash
+{
+    char *file_name;
+    int max_lines;
+    void **HASH_TABLE;
+    Node **CSV_LINE_TABLE;
+    unsigned char *DIRTY_LINE_TABLE;
+} Hash;
 
-    /* UPDATES A SPECIFIC LINE IN A CSV FILE
-        Updates information in a specific line of the CSV file. 
-        If the line does not exist, appends the information
-        after the last line.
-        Otherwise, it modifies the existing line in place.
-    Params
-        - hash_table: Pointer to the hash table.
-        - info: Pointer to the information to be written.
-        - to_csv_line: Callback function that generates a CSV-formatted string from the information.
-        - line_id: Index of the line to be updated in the CSV file.
-    Return
-        
-    */
-    void hsh_update(Hash* hash_table, void* info, char* (to_csv_line)(void*), unsigned int line_id);
+/*CREATES A HASH TABLE
+    Initializes a hash table to manage
+    the lines of a CSV file.
 
-    /* SEARCHS FOR INFORMATION IN A SPECIFIC CSV LINE
-        Retrieves a copy of the information located at 
-        the given line index in the CSV file.
-    Params
-        - hash_table: Pointer to the hash table.
-        - line_id: Index of the line in the CSV file.
-        - from_csv_line: Callback function that reads a 
-        CSV line and loads the information into main memory.
-    Return
-        Pointer to the recovered information, or NULL
-        if the line index does not exist.
-    */
-    void* hsh_busca(Hash* hash_table, unsigned int line_id, void* (from_csv_line)(void*));
-    
-    /* DELETES INFORMATION AT A SPECIFIC CSV LINE
-        Removes the information located at the given
-        line index in the CSV file.
-    Params
-        - hash_table: Pointer to the hash table.
-        - line_id: Index of the line in the CSV file.
-    Return
-        
-    */
-    void hsh_delete(Hash* hash_table, unsigned int line_id);
-    
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include "TAD_HASHTABLE.c"
+Params
+    - file_name: Pointer to a string representing the file
+     name.
+    - table_length: Length of the hash table. If 0, the default
+     HASH_TABLE_LENGTH is used.
+Return
+    Pointer to a struct hash.
+*/
+Hash *hsh_create(char *file_name, int table_length);
+
+/*FREES A HASH TABLE
+    Deallocates memory used by the hash table.
+    Before freeing, stores any dirty (modified)
+    lines into the CSV file.
+Params
+    - hash_table: Pointer to the hash table.
+    - to_csv_line: Callback function that generates
+    a CSV-formatted string from a hash table entry.
+Return
+
+*/
+void hsh_free(Hash *hash_table, char *(*to_csv_line)(void *));
+
+/*CALCULATES THE HASH OF A CSV LINE
+    Determines the index in the hash table where
+    the given CSV line (representing a record to
+    be recovered) should be stored.
+Params
+    - csv_line: Pointer to the CSV line representing the record.
+Return
+    The hash table index corresponding to the line.
+*/
+static int hsh_function(unsigned int csv_line);
+
+/* UPDATES A SPECIFIC LINE IN A CSV FILE
+    Updates information in a specific line of the CSV file.
+    If the line does not exist, appends the information
+    after the last line.
+    Otherwise, it modifies the existing line in place.
+Params
+    - hash_table: Pointer to the hash table.
+    - info: Pointer to the information to be written.
+    - to_csv_line: Callback function that generates a CSV-formatted string from the information.
+    - line_id: Index of the line to be updated in the CSV file.
+Return
+
+*/
+void hsh_update(Hash *hash_table, void *info, char *(*to_csv_line)(void *), unsigned int line_id);
+
+/* SEARCHS FOR INFORMATION IN A SPECIFIC CSV LINE
+    Retrieves a copy of the information located at
+    the given line index in the CSV file.
+Params
+    - hash_table: Pointer to the hash table.
+    - line_id: Index of the line in the CSV file.
+    - from_csv_line: Callback function that reads a
+    CSV line and loads the information into main memory.
+Return
+    Pointer to the recovered information, or NULL
+    if the line index does not exist.
+*/
+void *hsh_busca(Hash *hash_table, unsigned int line_id, void *(*from_csv_line)(void *));
+
+/* DELETES INFORMATION AT A SPECIFIC CSV LINE
+    Removes the information located at the given
+    line index in the CSV file.
+Params
+    - hash_table: Pointer to the hash table.
+    - line_id: Index of the line in the CSV file.
+Return
+
+*/
+void hsh_delete(Hash *hash_table, unsigned int line_id);
+
+int count_file_lines(const char *filename);
+char *data_to_csv_line(void *data_ptr);
+void free_data(void *data_ptr);
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "TAD_HASHTABLE.c"
 #endif
